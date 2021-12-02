@@ -9,6 +9,7 @@
 		name: "BackTop",
     methods: {
 			backClick() {
+				console.log(1);
 				this.$emit("backClick")
       }
     }
@@ -18,8 +19,9 @@
 <style scoped>
   .back-top {
     position: fixed;
-    bottom: 50px;
-    right: 7px;
+    z-index: 99999;
+    bottom: 140px;
+    right: 60px;
   }
   .back-top img {
     width: 43px;

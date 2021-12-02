@@ -18,3 +18,19 @@ export class GoodsInfo {
 		this.service = services;
 	}
 }
+export class ShopInfo {
+	constructor(shopInfo) {
+		this.title = shopInfo.name;
+		this.sell = shopInfo.cSells;
+		this.goods = shopInfo.cGoods;
+		this.score = shopInfo.score
+		this.url = shopInfo.shopUrl;
+		this.logo = shopInfo.shopLogo
+	}
+}
+
+export function getRecommend() {
+	return request({
+		url: "/recommend"
+	})
+}

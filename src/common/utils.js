@@ -7,3 +7,20 @@ export function debounce(fnc, delay) {
 		}, delay);
 	}
 }
+
+
+export function sort(arr) {
+	let newArr = [...arr];
+	for (let i = 0; i < newArr.length; i++) {
+		for (let j = i; j < newArr.length; j++) {
+			if (newArr[i] >= newArr[j + 1]) {
+				let t = newArr[i];
+				newArr[i] = newArr[j + 1];
+				newArr[j + 1] = t;
+			}
+		}
+	}
+
+	return newArr;
+}
+

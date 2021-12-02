@@ -42,7 +42,6 @@
 					this.$emit("pullingUp")
 				})
       }
-
     },
     methods: {
 			scrollTo(x, y, time = 500) {

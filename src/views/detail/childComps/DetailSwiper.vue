@@ -27,6 +27,6 @@
 
 <style scoped>
   .swiper-item {
-    height: 250px;
+    height: 400px;
   }
 </style>

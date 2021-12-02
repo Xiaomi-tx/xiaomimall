@@ -32,8 +32,7 @@
 	import TabControl from "components/content/tabControl/TabControl";
 	import GoodsList from "components/content/goods/GoodsList";
 	import Scroll from "components/common/scroll/Scroll";
-	import BackTop from "components/common/backTop/BackTop";
-	import {debounce} from "common/utils";
+	import {itemListenerMixin, backTopMixin} from "common/mixin";
 
 	import {
   	getHomeMultidata, getHomeGoods
@@ -49,14 +48,13 @@
 			TabControl,
 			GoodsList,
 			Scroll,
-			BackTop
     },
     mounted() {
 			// 1. 完成加载完成的时间监听
       this.scroll = this.$refs.scroll;
 
 			// 3. 监听item图片加载完成
-			this.$bus.$on("itemImageLoad", debounce(this.scroll.refresh, 200))
+      // 对监听的事件进行保存
 
       // 2. 拿到tabControl的offsetTop
       // 所有的组件都有衣蛾属性$el: 用于获取组件的元素的
@@ -66,6 +64,7 @@
 				return this.goods[this.currentType].list
       }
     },
+    mixins: [itemListenerMixin, backTopMixin],
     data() {
 			return {
         banners: [],
@@ -77,10 +76,9 @@
         },
         currentType: 'pop',
         scroll: null,
-        isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
-        saveY: 0,
+        saveY: 0
       }
     },
     activated() {
@@ -88,7 +86,10 @@
 			this.scroll.refresh();
     },
     deactivated() {
+			// 1. 保存Y值
 			this.saveY = this.scroll.getScrollY();
+			// 2. 取消事件监听
+      this.$bus.$off('itemImgLoad', this.itemImgListener)
 		},
 		created() {
 			// 1. 请求多个数据
@@ -119,12 +120,9 @@
         this.$refs.tabControl1.currentIndex = index;
         this.$refs.tabControl2.currentIndex = index;
       },
-			backClick() {
-        this.scroll.scrollTo(0, 0);
-      },
 			contentScroll(position) {
 				// 1. 判断backtop是否显示
-        this.isShowBackTop = Math.abs(position.y) > 800
+        this.listenShowBackTop(position);
 
         // 2. tabControl是否吸顶（position: fixed）
         this.isTabFixed = (-position.y) > this.tabOffsetTop;
