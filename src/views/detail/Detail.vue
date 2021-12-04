@@ -12,6 +12,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+<!--    <toast :message="message" :show="show"/>-->
   </div>
 </template>
 
@@ -28,11 +29,13 @@
   import Scroll from "components/common/scroll/Scroll";
   import GoodsList from "components/content/goods/GoodsList";
 	import DetailSwiper from "./childComps/DetailSwiper";
-
+  // import Toast from "components/common/toast/Toast";
 
 	import {getDetail, GoodsInfo, ShopInfo, getRecommend} from "network/detail";
   import {debounce, sort} from "common/utils";
   import {itemListenerMixin, backTopMixin} from "common/mixin";
+
+  import {mapActions} from "vuex";
 
 	export default {
 		name: "Detail",
@@ -47,11 +50,13 @@
 			DetailCommon,
 			GoodsList,
 			DetailBottomBar,
+			// Toast
     },
     mixins: [itemListenerMixin, backTopMixin],
     data() {
       return {
       	iid: null,
+        id: null,
         topImages: [],
         goods: {},
         shops: {},
@@ -63,6 +68,8 @@
 				beforeValue: 0,
 				currentIndex: 0,
 				isShowBackTop: false,
+        // message: "",
+        // show: false,
 			}
     },
     created() {
@@ -73,13 +80,13 @@
 			getDetail(this.iid).then(res => {
 				const data = res.detail.result;
 				// 1. 获取顶部的图片轮播数据
-        this.topImages = data.topImages;
+				this.topImages = data.topImages;
+        // 3. 请求推荐数据
+        getRecommend().then(res => {
+          this.recommends = res.wall.list;
+        })
 
-      // 3. 请求推荐数据
-      getRecommend().then(res => {
-      	this.recommends = res.wall.list;
-      })
-
+        this.id = data.userInfo.shopId
         // 2. 获取商品信息
         this.goods = new GoodsInfo(data.itemInfo, data.itemServices.columns[0], data.itemServices.services)
 
@@ -95,18 +102,22 @@
         // 6. 取出评论信息
         this.comment = res.comment;
 
-        // this.$nextTick(() => {
-        // 	// 根据最新的数据，对应的DOM是渲染出来
-        //   // 但是图片依然是没有加载完毕的。
-				// 	this.themeTopYs.push(0);
-				// 	this.themeTopYs.push(this.$refs.params.$el.offsetTop)
-				// 	this.themeTopYs.push(this.$refs.common.$el.offsetTop)
-				// 	this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
-				// 	console.log(this.themeTopYs);
-        // })
+          // this.$nextTick(() => {
+          // 	// 根据最新的数据，对应的DOM是渲染出来
+          //   // 但是图片依然是没有加载完毕的。
+          // 	this.themeTopYs.push(0);
+          // 	this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+          // 	this.themeTopYs.push(this.$refs.common.$el.offsetTop)
+          // 	this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+          // 	console.log(this.themeTopYs);
+          // })
 			})
     },
     methods: {
+      // ...mapActions(['addCart']),
+      ...mapActions({
+        add: "addCart"
+      }),
 			imageLoad() {
         this.$refs.scroll.refresh();
 				this.themeTopYs.push(0);
@@ -150,9 +161,26 @@
         product.desc = '贼牛逼！！的内衣~~~女人看了都爱啊！~'
         product.title = this.goods.title;
         product.price = this.goods.newPrice;
+        product.id = this.iid;
 
         // 2. 将商品添加到购物车中
-				console.log(product);
+        this.add(product).then(res => {
+        	// this.show = true;
+        	// this.message = res;
+          //
+        	// setTimeout(() => {
+          //   this.show = false;
+          //   this.message = '';
+          // }, 1000);
+					// console.log(res);
+          this.$toast.show(res);
+        })
+
+				// this.$store.dispatch("addCart", product).then(res => {
+				// 	console.log(res);
+        // })
+
+				// 3. 添加到购物车成功
       }
     },
     updated() {

@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.image" alt="" @load="imageLoad">
+    <img v-lazy="goodsItem.image" alt="" @load="imageLoad">
     <div>
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -29,7 +29,7 @@
         // }
       },
 			itemClick() {
-				this.$router.push('/detail/' + 1111);
+				this.$router.push('/detail/' + Math.random() * 100000);
 			}
     }
 	};
